@@ -6,5 +6,5 @@ sed -i 's/restricted-network yes/restricted-network no/g' /etc/firejail/firejail
 git clone https://github.com/annoyinganongurl/kali-firejail-profiles.git
 cp -R kali-firejail-profiles/* /etc/firejail/
 rm -rf kali-firejail-profiles
-cd torjail
+cd ../torjail
 make install

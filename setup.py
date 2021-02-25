@@ -2,9 +2,11 @@
 from setuptools import setup
 from setuptools.command.install import install as anoninstall
 import os
-import sys
+from os import path
 
-VERSION = "1.5.0"
+VERSION = "1.5.2"
+here = path.abspath(path.dirname(__file__))
+name = "anonjail"
 
 try:
     import pypandoc
@@ -12,24 +14,17 @@ try:
 except:
     long_description = ""
 
+here = path.abspath(path.dirname(__file__))
+
+def PostInstall():
+    from subprocess import check_call
+    os.system("scripts/anonjail-install.sh")
+
 class InstallingClass(anoninstall):
-    user_options = anoninstall.user_options +  [('autoinstall=', 'y', 'auto install all deps.')]
-    
-    def initialize_options(self):
-        anoninstall.initialize_options(self)
-        self.autoinstall = 'y'
-
-    def finalize_options(self):
-         anoninstall.finalize_options(self)
-
-    def run(self):
-        global autoinstall
-        autoinstall = self.autoinstall
-        if self.autoinstall == 'y':
-            os.system("sudo sh -c 'scripts/anonjail-install.sh'")
+    def run(self):      
         anoninstall.run(self)
-
-
+        PostInstall()
+               
 setup(
     name = 'anonjail',
     version=VERSION,
@@ -40,6 +35,7 @@ setup(
     py_modules=["anonjail"],
     install_requires=["click"],
     entry_points={"console_scripts": ["anonjail=anonjail:cli"]},
+    #scripts=['scripts/anonjail-install.sh'],
     author="K",
     author_email="anon@anon.com",
     classifiers=[
