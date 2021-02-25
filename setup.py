@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 from setuptools import setup
+from setuptools.command.install import install as anoninstall
+import os
+import sys
 
-import anonjail
+VERSION = "1.5.0"
 
 try:
     import pypandoc
@@ -9,16 +12,34 @@ try:
 except:
     long_description = ""
 
+class InstallingClass(anoninstall):
+    user_options = anoninstall.user_options +  [('autoinstall=', 'y', 'auto install all deps.')]
+    
+    def initialize_options(self):
+        anoninstall.initialize_options(self)
+        self.autoinstall = 'y'
+
+    def finalize_options(self):
+         anoninstall.finalize_options(self)
+
+    def run(self):
+        global autoinstall
+        autoinstall = self.autoinstall
+        if self.autoinstall == 'y':
+            os.system("sudo sh -c 'scripts/anonjail-install.sh'")
+        anoninstall.run(self)
+
+
 setup(
-    name="anonjail",
-    version=anonjail.__version__,
+    name = 'anonjail',
+    version=VERSION,
     description="Control firejail and tor desktop integration.",
     long_description=long_description,
     url="https://boards.420chan.org/",
     license="GPLv2+",   
     py_modules=["anonjail"],
     install_requires=["click"],
-    entry_points={"console_scripts": ["anonjail=anonjail:cli"]}, 
+    entry_points={"console_scripts": ["anonjail=anonjail:cli"]},
     author="K",
     author_email="anon@anon.com",
     classifiers=[
@@ -31,7 +52,8 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Security"
     ],
-    keywords="firejail and tor sandbox desktop integration"
+    keywords="firejail and tor sandbox desktop integration",
+    cmdclass={
+        'install': InstallingClass,
+    },
 )
-
-

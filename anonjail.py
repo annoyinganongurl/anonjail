@@ -26,8 +26,6 @@ import click
 
 firejail = which("firejail")
 
-__version__ = "1.4.0"
-
 if not firejail:
     click.secho("Firejail and Torjail must be installed!", fg="red")
     raise click.UsageError(message="Please install Firejail and Torjail")
