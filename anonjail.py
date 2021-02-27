@@ -16,33 +16,37 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import os
 import os.path
 import getpass
 import re
 from difflib import get_close_matches
 from shutil import which
 import click
+import platform
+from subprocess import call
 
-firejail = which("firejail")
-
-if not firejail:
-    click.secho("Firejail and Torjail must be installed!", fg="red")
-    raise click.UsageError(message="Please install Firejail and Torjail")
-
-profile_path = "/etc/firejail/"
-application_path = "/usr/share/applications/"
-symlink_path = "/usr/local/bin/"
-config = "/etc/firejail/anonjail.conf"
-
-profiles = [os.path.splitext(file)[0]  for file in os.listdir(profile_path)]
-applications = [os.path.splitext(f)[0] for f in os.listdir(application_path)]
-installed = [app for profile in profiles for app in applications if profile == app]
+import sys
 
 @click.version_option()
 @click.group()
 def cli():
     pass
+
+def install():
+    """Install and config Anonjail dependencies"""
+    dist = ''
+    with open('/etc/os-release', "rb") as f:
+        for line in f:
+            if line.startswith(b'ID_LIKE'):
+                if b'DEBIAN' in line.upper():
+                    dist = 'deb'
+                elif b'RHEL' in line.upper():
+                    dist = 'rhel'
+                    print("Not working 'YET' maybe dunno")
+    with open('./scripts/' + dist + '-install.sh', 'rb') as file:
+        script = file.read()
+    rc = call(script, shell=True)
+
 
 def findStringInFile(file, stringtofind):
     """Check if a the specified file contains given string """
@@ -51,6 +55,7 @@ def findStringInFile(file, stringtofind):
         if re.search(stringtofind, content):
             return True
     return False         
+
 
 def get_confd_apps():
     enabled = []
@@ -171,7 +176,7 @@ def switch_ExecState(filename, status=False):
 def makeExec_cmd(program, torified):
     """Generate the Exec command going in the desktop file"""
     condition = lambda l: l.startswith(b"Exec=") and (b"firejail" or b"torjail" not in l)
-    torified = b"Exec=sh -c 'sudo /torjail/usr/sbin/torjail -f $cmd'" if torified else b"Exec=sh -c 'firejail $cmd'"
+    torified = b"Exec=sh -c 'sudo torjail -f $cmd'" if torified else b"Exec=sh -c 'firejail $cmd'"
     with open(program, "rb") as file:
         for line in file:
             if condition(line):
@@ -182,7 +187,8 @@ def makeExec_cmd(program, torified):
     raise click.UsageError(
         message="Can't make a valid Exec command")
 
-@cli.command(help="enable anonjail for program")
+
+@cli.command(help="Enable anonjail for program")
 @click.argument("program", type=click.STRING, nargs=-1)
 @click.option("--all", "all_programs", is_flag=True, help="Enable Firejail for all supported programs.")
 @click.option("--tor", "torify", is_flag=True, help="Enable Tor routing for the/all program(s)")
@@ -300,6 +306,25 @@ def restore():
     if len(conf) > 0:
         enable.callback(conf, all_programs=False, update_config=False)
 
+
+if len(sys.argv) > 1 and 'install' in sys.argv:
+    install()
+
+firejail = which("firejail")
+torjail = which("torjail")
+
+if not firejail or not torjail: #and cmd not install
+    click.secho("Firejail and Torjail must be installed!", fg="red")
+    raise click.UsageError(message="Please install Firejail and Torjail.. see the README or sudo anonjail install")
+
+profile_path = "/etc/firejail/"
+application_path = "/usr/share/applications/"
+symlink_path = "/usr/local/bin/"
+config = "/etc/firejail/anonjail.conf"
+
+profiles = [os.path.splitext(file)[0]  for file in os.listdir(profile_path)]
+applications = [os.path.splitext(f)[0] for f in os.listdir(application_path)]
+installed = [app for profile in profiles for app in applications if profile == app]
 
 if __name__ == "__main__":
     cli()

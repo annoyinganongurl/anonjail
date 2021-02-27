@@ -19,22 +19,23 @@ https://github.com/orjail/orjail & https://github.com/rahiel/firectl
 
 Automatic anonjail install with pip (debian10 based distros running GNOME only for naw. I know im so sorry):
 ``` bash
-sudo pip3 install anonjail --install-option="--autoinstall=y"
-```
-
-
-Install anonjail and do other steps separately:
-``` bash
 sudo pip3 install anonjail
 ```
 
-## Dependencies
+## Anonjail self install and config dependencies
+Supported distros : 
+Debian
+``` bash
+sudo anonjail install
+```
+
+## Install dependencies manually
 ``` bash
 sudo apt-get -y update
 sudo apt-get -y install bc tor firejail python3-pip
 ```
 
-## Extra steps (Enabling services and FireJail networking)
+## Extra manual steps (Enabling services and FireJail networking)
 ``` bash
 sudo systemctl enable tor --now
 sudo systemctl enable apparmor --now
@@ -57,34 +58,34 @@ sudo pip3 uninstall anonjail
 
 # Usage
 
-To see which applications owning a personal FJ profile you can enable and current config infos:
+To see which applications owning a personal FJ profile you can enable and current config infos
 ``` bash
 anonjail status
 ```
 
-To see which applications with no personal FJ profile you can enable:
+To see which applications with no personal FJ profile you can enable
 ``` bash
 anonjail showapps
 ```
 
-To enable firejail for a program:
+To enable firejail for a program
 ``` bash
 sudo anonjail enable [name]
 ex : sudo anonjail enable firefox
 ```
 
-To disable firejail for a program:
+To disable firejail for a program
 ``` bash
 sudo anonjail disable [name]
 ex : sudo anonjail disable firefox
 ```
 
-To enable tor + firejail for all program:
+To enable tor + firejail for all program
 ``` bash
 sudo anonjail enable --all --tor
 ```
 
-To enable tor + firejail anonjail for a program:
+To enable tor + firejail anonjail for a program
 ``` bash
 sudo anonjail enable [name] --tor
 ex : sudo anonjail enable firefox --tor

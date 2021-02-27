@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 from setuptools import setup
 from setuptools.command.install import install as anoninstall
-import os
 from os import path
 
-VERSION = "1.5.2"
+VERSION = "1.5.8"
 here = path.abspath(path.dirname(__file__))
 name = "anonjail"
 
@@ -13,17 +12,6 @@ try:
     long_description = pypandoc.convert_file("README.md", "rst")
 except:
     long_description = ""
-
-here = path.abspath(path.dirname(__file__))
-
-def PostInstall():
-    from subprocess import check_call
-    os.system("scripts/anonjail-install.sh")
-
-class InstallingClass(anoninstall):
-    def run(self):      
-        anoninstall.run(self)
-        PostInstall()
                
 setup(
     name = 'anonjail',
@@ -35,7 +23,7 @@ setup(
     py_modules=["anonjail"],
     install_requires=["click"],
     entry_points={"console_scripts": ["anonjail=anonjail:cli"]},
-    #scripts=['scripts/anonjail-install.sh'],
+    scripts=["scripts/deb-install.sh"],
     author="K",
     author_email="anon@anon.com",
     classifiers=[
@@ -49,7 +37,4 @@ setup(
         "Topic :: Security"
     ],
     keywords="firejail and tor sandbox desktop integration",
-    cmdclass={
-        'install': InstallingClass,
-    },
 )
